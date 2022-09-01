@@ -1,0 +1,386 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Catinator API
+  description: Catinator is the best platform to store all ypu CAT pictures.
+
+servers:
+  - url: http://localhost:8080
+    description: Local server
+paths:
+  /cats:
+    get:
+      tags:
+        - cat
+      operationId: listCats
+      description: |
+        Returns a list of cats.
+      parameters:
+        - in: query
+          name: sort
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        200:
+          description: a list of cats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cat'
+    post:
+      tags:
+        - cat
+      operationId: addCat
+      description: |
+        Adds a new cat to the list of cats.
+      requestBody:
+        description: A cat to insert. Returns the inserted cat with an ID
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AddCat'
+      responses:
+        201:
+          description: The inserted Cat with a unique ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cat'
+        401:
+          description: Unauthenticated Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/cat/{catId}':
+    get:
+      tags:
+        - cat
+      summary: Find cat by ID
+      description: Returns a single cat
+      operationId: getCatById
+      parameters:
+        - name: catId
+          in: path
+          description: ID of cat to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cat'
+        404:
+          description: Cat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Unauthenticated Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Unauthorized Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - cat
+      summary: Delete cat by ID
+      description: Deletes a single cat
+      operationId: deleteCatById
+      parameters:
+        - name: catId
+          in: path
+          description: ID of cat to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SucessMessage'
+        404:
+          description: Cat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Unauthenticated Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Unauthorized Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - cat
+      operationId: updateCat
+      description: |
+        Update a cat
+      parameters:
+        - name: catId
+          in: path
+          description: ID of cat to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: A cat to update
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateCat'
+      responses:
+        201:
+          description: The Cat has been updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cat'
+        404:
+          description: Cat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Unauthenticated Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Unauthorized Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/cat/image/{imageId}':
+    get:
+      tags:
+        - cat
+      summary: Find cat image by ID
+      description: Returns a single cat image
+      operationId: getCatImageById
+      security: []      
+      parameters:
+        - name: imageId
+          in: path
+          description: ID of cat image to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+        404:
+          description: Cat Image not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/auth/register':
+    post:
+      tags:
+        - auth
+      operationId: register
+      description: |
+        Register a new user.
+      security: []
+      requestBody:
+        description: New User data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+      responses:
+        201:
+          description: The user is registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SucessMessage'
+        400:
+          description: Bad request. User email/password is invalid or exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/auth/login':
+    post:
+      tags:
+        - auth
+      operationId: login
+      description: |
+        Login an existing user.
+      security: []
+      requestBody:
+        description: Login Credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        200:
+          description: The user is registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginDetails'
+        401:
+          description: User Credentials incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Cat:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        imageId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - description
+        - tags
+        - imageId
+    AddCat:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        image:
+          type: string
+          format: binary
+      required:
+        - name
+        - description
+        - tags
+        - image
+    UpdateCat:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        image:
+          type: string
+          format: binary
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Error code
+        message:
+          type: string
+          description: Error message
+    SucessMessage:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Sucess message
+    Registration:
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          format: password
+      required:
+        - name
+        - email
+        - password
+    Login:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+    LoginDetails:
+      properties:
+        token:
+          type: string
+        name:
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - BearerAuth: [ ]
+

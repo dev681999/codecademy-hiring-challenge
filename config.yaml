@@ -1,0 +1,19 @@
+# server config
+server:
+  host: ""
+  port: "8080"
+  debug: true
+  public_storage_folder: ".local/files/public"
+  swagger_ui_folder: "./swagger-ui"
+  swagger_api_file_path: "./api.yaml"
+  jwt_secret: "supersecret"
+
+# database config
+db:
+  host: "localhost"
+  port: 5433
+  user: "postgres"
+  db_name: "catinator"
+  password: "password"
+  # debug: true
+  ssl_mode: "disable"
